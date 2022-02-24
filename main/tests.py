@@ -75,7 +75,7 @@ class testing(TestCase):
 		'''
 		c = Client()
 		data = self.custom_user1
-		c.post('/api/users/',json.dumps(data),content_type="application/json")
+		self.assertEqual(c.post('/api/users/',json.dumps(data),content_type="application/json").json(),{})
 		r7 = c.get('/api/users/?limit=505').json()[-1]
 		r7.pop('id')
 		self.assertEqual(self.custom_user1,r7)
@@ -96,7 +96,7 @@ class testing(TestCase):
 		c = Client()
 		url = '/api/users/501'
 		r9b = c.get(url).json()
-		c.put(url,data={"first_name":"changed"}, content_type="application/json")
+		self.assertEqual(c.put(url,data={"first_name":"changed"}, content_type="application/json").json(),{})
 		r9a = c.get(url).json()
 		r9b["first_name"] = "changed"
 		self.assertTrue(r9a,r9b)
