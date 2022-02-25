@@ -2,7 +2,6 @@ from django.test import TestCase, Client
 from main.models import users
 import json
 
-# Create your tests here.
 class testing(TestCase):
 	all_data = json.load(open('users.json'))
 	custom_user = {"first_name": "new", "last_name": "user", "company_name": "testing, testing sq", "city": "testers", "state": "TE", "zip": 1337, "email": "tester@example.com", "web": "http://www.example.com", "age": 69}

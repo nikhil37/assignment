@@ -5,7 +5,6 @@ from django.core import serializers
 from django.utils.datastructures import MultiValueDictKeyError
 import json
 
-# Create your views here.
 '''
 GET parameters
 - page (pagination)
@@ -59,7 +58,6 @@ def index(request, methods = ["GET","POST"]):
 		for i in final:
 			i["fields"]['id'] = i['pk'] 
 			x.append(i['fields'])
-			#print(i['pk'])
 		final = x
 		return JsonResponse(final, safe = False)
 	elif request.method == "POST":
