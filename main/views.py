@@ -1,7 +1,6 @@
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from main.models import users
-from django.core import serializers
 from django.utils.datastructures import MultiValueDictKeyError
 import json
 
@@ -42,19 +41,17 @@ def index(request, methods = ["GET","POST"]):
 			fn = users.objects.raw(f'select * from main_users where lower(first_name) glob lower("*{name}*") or lower(last_name) glob lower("*{name}*")')
 		else:
 			fn = users.objects.all()
-		final = json.loads(serializers.serialize('json',fn))
 		if sort != None:
 			if sort[0] == '-':
 				sort = sort[1:]
 				reverse = True
 			else:
 				reverse = False
+		final=[]
+		for i in fn:
+			i.__dict__.pop('_state')
+			final.append(i.__dict__)
 		final = final[(page-1)*limit:page*limit]
-		x=[]
-		for i in final:
-			i["fields"]['id'] = i['pk']
-			x.append(i['fields'])
-		final = x
 		if sort	!= None:
 			final = sorted(final, key = lambda ff:ff[sort],reverse = reverse)
 		return JsonResponse(final, safe = False)
@@ -87,23 +84,22 @@ def index(request, methods = ["GET","POST"]):
 
 @csrf_exempt
 def specific(request,id, methods = ["DELETE","PUT","GET"]):
-	u = users.objects.filter(id=id)
+	try:
+		u = users.objects.filter(id=id)[0]
+	except IndexError:
+		return JsonResponse({},status=404)
 	if request.method == "GET":
 		'''
 		returns all details of the specific user
 		'''
-		try:
-			ru = json.loads(serializers.serialize('json',u))[0]
-			ru['fields']['id'] = ru['pk']
-		except IndexError:
-			return JsonResponse({},status=404)
-		return JsonResponse(ru['fields'])
+		u.__dict__.pop('_state')
+		return JsonResponse(u.__dict__)
+		#ru['fields']['id'] = ru['pk']
 	elif request.method == "PUT":
 		'''
 		Change details of the specified user
 		'''
 		data = json.loads(request.body)
-		u = u[0]
 		for i in data.keys():
 			setattr(u,i,data[i])
 		u.save()
@@ -112,7 +108,7 @@ def specific(request,id, methods = ["DELETE","PUT","GET"]):
 		'''
 		Delete the specified user
 		'''
-		u[0].delete()
+		u.delete()
 		return JsonResponse({}, status = 200)
 
 def add_data(request):
