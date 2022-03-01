@@ -39,7 +39,7 @@ def index(request, methods = ["GET","POST"]):
 		except MultiValueDictKeyError:
 			sort = None
 		if name != None:
-			fn = users.objects.raw(f'select * from main_users where first_name glob "*{name}*" or last_name glob "*{name}*"')
+			fn = users.objects.raw(f'select * from main_users where lower(first_name) glob lower("*{name}*") or lower(last_name) glob lower("*{name}*")')
 		else:
 			fn = users.objects.all()
 		final = json.loads(serializers.serialize('json',fn))
