@@ -47,6 +47,8 @@ def index(request, methods = ["GET","POST"]):
 				reverse = True
 			else:
 				reverse = False
+		if page < 1 or limit < 1:
+			return JsonResponse({'error':'Invalid parameters provided'}, status = 400) 
 		final=[]
 		for i in fn:
 			i.__dict__.pop('_state')
