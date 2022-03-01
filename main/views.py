@@ -94,7 +94,6 @@ def specific(request,id, methods = ["DELETE","PUT","GET"]):
 		'''
 		u.__dict__.pop('_state')
 		return JsonResponse(u.__dict__)
-		#ru['fields']['id'] = ru['pk']
 	elif request.method == "PUT":
 		'''
 		Change details of the specified user
