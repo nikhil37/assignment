@@ -51,7 +51,12 @@ def index(request, methods = ["GET","POST"]):
 		for i in fn:
 			i.__dict__.pop('_state')
 			final.append(i.__dict__)
-		final = final[(page-1)*limit:page*limit]
+		try:
+			final = final[(page-1)*limit:page*limit]
+		except IndexError:
+			return JsonResponse([],safe = False)
+		if sort	!= None and sort not in users.objects.get(id=1).__dict__.keys:
+			return JsonResponse({'error':'Given sorting parameter does not exist'})
 		if sort	!= None:
 			final = sorted(final, key = lambda ff:ff[sort],reverse = reverse)
 		return JsonResponse(final, safe = False)
