@@ -39,26 +39,24 @@ def index(request, methods = ["GET","POST"]):
 		except MultiValueDictKeyError:
 			sort = None
 		if name != None:
-			fn = users.objects.filter(first_name__icontains = name)
-			ln = users.objects.filter(last_name__icontains = name)
+			fn = users.objects.raw(f'select * from main_users where first_name glob "*{name}*" or last_name glob "*{name}*"')
 		else:
 			fn = users.objects.all()
-			ln = None
+		final = json.loads(serializers.serialize('json',fn))
 		if sort != None:
-			fn = fn.order_by(sort)
-			final = json.loads(serializers.serialize('json',fn))
-			if name != None:
-				final.extend(json.loads(serializers.serialize('json',ln)))
-		else:
-			final = json.loads(serializers.serialize('json',fn))
-			if ln != None:
-				final.extend(json.loads(serializers.serialize('json',ln)))
+			if sort[0] == '-':
+				sort = sort[1:]
+				reverse = True
+			else:
+				reverse = False
 		final = final[(page-1)*limit:page*limit]
 		x=[]
 		for i in final:
-			i["fields"]['id'] = i['pk'] 
+			i["fields"]['id'] = i['pk']
 			x.append(i['fields'])
 		final = x
+		if sort	!= None:
+			final = sorted(final, key = lambda ff:ff[sort],reverse = reverse)
 		return JsonResponse(final, safe = False)
 	elif request.method == "POST":
 		'''
